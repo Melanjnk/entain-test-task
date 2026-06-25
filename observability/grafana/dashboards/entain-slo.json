@@ -1,0 +1,742 @@
+{
+  "annotations": {
+    "list": []
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [],
+  "panels": [
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 },
+      "id": 1,
+      "title": "SLI / SLO / SLA (balance API)",
+      "type": "row"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "description": "SLI: share of HTTP 2xx responses. SLO target: 99.9% monthly availability.",
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 3,
+          "max": 1,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "red", "value": null },
+              { "color": "orange", "value": 0.99 },
+              { "color": "green", "value": 0.999 }
+            ]
+          },
+          "unit": "percentunit"
+        }
+      },
+      "gridPos": { "h": 6, "w": 6, "x": 0, "y": 1 },
+      "id": 2,
+      "options": { "colorMode": "value", "graphMode": "area", "reduceOptions": { "calcs": ["lastNotNull"] } },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "entain:sli:availability:ratio",
+          "legendFormat": "availability",
+          "refId": "A"
+        }
+      ],
+      "title": "Availability SLI",
+      "type": "stat"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "description": "SLI: p95 request latency. SLO target: < 100ms for POST /transaction at 30 RPS.",
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "orange", "value": 0.1 },
+              { "color": "red", "value": 0.25 }
+            ]
+          },
+          "unit": "s"
+        }
+      },
+      "gridPos": { "h": 6, "w": 6, "x": 6, "y": 1 },
+      "id": 3,
+      "options": { "colorMode": "value", "graphMode": "area", "reduceOptions": { "calcs": ["lastNotNull"] } },
+      "targets": [
+        {
+          "expr": "entain:sli:latency:p95_seconds",
+          "legendFormat": "p95"
+        }
+      ],
+      "title": "Latency SLI (p95)",
+      "type": "stat"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "description": "Task requirement: sustain 20–30 RPS (markers on arc). Gray = idle. Green = target met. Run `make load-25` to validate.",
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 1,
+          "max": 60,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "#9CA3AF", "value": null },
+              { "color": "#FADE2A", "value": 1 },
+              { "color": "#73BF69", "value": 20 },
+              { "color": "#73BF69", "value": 30 },
+              { "color": "#73BF69", "value": 40 },
+              { "color": "#FF9830", "value": 50 },
+              { "color": "#F2495C", "value": 80 }
+            ]
+          },
+          "unit": "reqps"
+        }
+      },
+      "gridPos": { "h": 6, "w": 6, "x": 12, "y": 1 },
+      "id": 4,
+      "options": {
+        "minVizHeight": 75,
+        "minVizWidth": 75,
+        "orientation": "auto",
+        "reduceOptions": { "calcs": ["lastNotNull"] },
+        "showThresholdLabels": true,
+        "showThresholdMarkers": true,
+        "sizing": "auto"
+      },
+      "targets": [
+        {
+          "expr": "entain:sli:request_rate_rps",
+          "legendFormat": "__auto",
+          "refId": "A"
+        }
+      ],
+      "title": "Load Target",
+      "type": "gauge"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "description": "SLI: applied / (applied + rejected). Business correctness under validation rules.",
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 2,
+          "max": 1,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "red", "value": null },
+              { "color": "orange", "value": 0.95 },
+              { "color": "green", "value": 0.99 }
+            ]
+          },
+          "unit": "percentunit"
+        }
+      },
+      "gridPos": { "h": 6, "w": 6, "x": 18, "y": 1 },
+      "id": 5,
+      "options": { "colorMode": "value", "graphMode": "area", "reduceOptions": { "calcs": ["lastNotNull"] } },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "entain:sli:transaction_success:ratio",
+          "legendFormat": "tx success",
+          "refId": "A"
+        }
+      ],
+      "title": "Transaction Success SLI",
+      "type": "stat"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "description": "Error budget burn: 5xx ratio vs 0.1% monthly budget (99.9% SLO).",
+      "fieldConfig": {
+        "defaults": {
+          "custom": { "drawStyle": "line", "fillOpacity": 20, "lineWidth": 2 },
+          "unit": "percentunit"
+        },
+        "overrides": [
+          {
+            "matcher": { "id": "byName", "options": "SLO budget (0.1%)" },
+            "properties": [{ "id": "color", "value": { "fixedColor": "red", "mode": "fixed" } }]
+          }
+        ]
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 7 },
+      "id": 6,
+      "targets": [
+        {
+          "expr": "entain:sli:error:ratio",
+          "legendFormat": "5xx error ratio"
+        },
+        {
+          "expr": "0.001",
+          "legendFormat": "SLO budget (0.1%)"
+        }
+      ],
+      "title": "Error Budget (SLA signal)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "custom": { "drawStyle": "line", "fillOpacity": 10, "lineWidth": 2 },
+          "unit": "s"
+        }
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 7 },
+      "id": 7,
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.50, sum(rate(entain_http_request_duration_seconds_bucket[1m])) by (le))",
+          "legendFormat": "p50"
+        },
+        {
+          "expr": "entain:sli:latency:p95_seconds",
+          "legendFormat": "p95"
+        },
+        {
+          "expr": "entain:sli:latency:p99_seconds",
+          "legendFormat": "p99"
+        },
+        {
+          "expr": "0.1",
+          "legendFormat": "SLO line (100ms)"
+        }
+      ],
+      "title": "Latency percentiles vs SLO",
+      "type": "timeseries"
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 15 },
+      "id": 8,
+      "title": "Transparency — service health vs business outcomes",
+      "type": "row"
+    },
+    {
+      "gridPos": { "h": 3, "w": 24, "x": 0, "y": 16 },
+      "id": 13,
+      "options": {
+        "code": { "language": "plaintext", "showLineNumbers": false },
+        "content": "**How to read:** green `200` / `applied` = healthy. **Orange/blue 4xx** and `duplicate` / `insufficient_funds` = **business errors** (service is fine, rules fired). **Red 5xx** and `internal` = **service degradation** (bug or infra). Under `make load-25` almost everything is 200 — check the stat panels below: zeros on 402/409 are informative too.",
+        "mode": "markdown"
+      },
+      "title": "Legend",
+      "type": "text"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "description": "5xx and internal = broken service. Should stay at 0 under normal load.",
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 3,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "red", "value": 0.001 }
+            ]
+          },
+          "unit": "reqps"
+        },
+        "overrides": [
+          {
+            "matcher": { "id": "byName", "options": "5xx HTTP" },
+            "properties": [{ "id": "displayName", "value": "5xx HTTP" }]
+          },
+          {
+            "matcher": { "id": "byName", "options": "internal (metric)" },
+            "properties": [{ "id": "displayName", "value": "internal (metric)" }]
+          }
+        ]
+      },
+      "gridPos": { "h": 5, "w": 6, "x": 0, "y": 19 },
+      "id": 14,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "orientation": "horizontal",
+        "reduceOptions": { "calcs": ["lastNotNull"] },
+        "textMode": "value_and_name"
+      },
+      "targets": [
+        {
+          "expr": "sum(rate(entain_http_requests_total{status=~\"5..\"}[1m])) or vector(0)",
+          "legendFormat": "5xx HTTP",
+          "refId": "A"
+        },
+        {
+          "expr": "sum(rate(entain_transactions_rejected_total{reason=\"internal\"}[1m])) or vector(0)",
+          "legendFormat": "internal (metric)",
+          "refId": "B"
+        }
+      ],
+      "title": "SERVICE DEGRADATION",
+      "type": "stat"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "description": "4xx and tx rejections = expected rule-based failures, not service outage.",
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 2,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "blue", "value": null },
+              { "color": "orange", "value": 1 }
+            ]
+          },
+          "unit": "reqps"
+        }
+      },
+      "gridPos": { "h": 5, "w": 6, "x": 6, "y": 19 },
+      "id": 15,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "orientation": "horizontal",
+        "reduceOptions": { "calcs": ["lastNotNull"] },
+        "textMode": "value_and_name"
+      },
+      "targets": [
+        {
+          "expr": "sum(rate(entain_http_requests_total{status=~\"4..\"}[1m])) or vector(0)",
+          "legendFormat": "4xx HTTP (client)",
+          "refId": "A"
+        },
+        {
+          "expr": "sum(rate(entain_transactions_rejected_total[1m])) or vector(0)",
+          "legendFormat": "tx rejected (all)",
+          "refId": "B"
+        }
+      ],
+      "title": "BUSINESS ERRORS (expected)",
+      "type": "stat"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "description": "Successful transactions and HTTP 200 responses.",
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 1,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [{ "color": "green", "value": null }]
+          },
+          "unit": "reqps"
+        }
+      },
+      "gridPos": { "h": 5, "w": 6, "x": 12, "y": 19 },
+      "id": 16,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "orientation": "horizontal",
+        "reduceOptions": { "calcs": ["lastNotNull"] },
+        "textMode": "value_and_name"
+      },
+      "targets": [
+        {
+          "expr": "sum(rate(entain_http_requests_total{status=\"200\"}[1m])) or vector(0)",
+          "legendFormat": "HTTP 200",
+          "refId": "A"
+        },
+        {
+          "expr": "sum(rate(entain_transactions_applied_total[1m])) or vector(0)",
+          "legendFormat": "tx applied",
+          "refId": "B"
+        }
+      ],
+      "title": "SUCCESS",
+      "type": "stat"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "description": "Side-by-side: red line = degradation, blue/orange = business rejections.",
+      "fieldConfig": {
+        "defaults": {
+          "custom": { "drawStyle": "line", "fillOpacity": 30, "lineWidth": 3, "stacking": { "mode": "none" } },
+          "unit": "reqps"
+        },
+        "overrides": [
+          {
+            "matcher": { "id": "byName", "options": "SERVICE: 5xx" },
+            "properties": [
+              { "id": "color", "value": { "fixedColor": "red", "mode": "fixed" } },
+              { "id": "custom.fillOpacity", "value": 40 }
+            ]
+          },
+          {
+            "matcher": { "id": "byName", "options": "BUSINESS: tx rejected" },
+            "properties": [
+              { "id": "color", "value": { "fixedColor": "blue", "mode": "fixed" } },
+              { "id": "custom.lineStyle", "value": { "dash": [10, 10], "fill": "dash" } }
+            ]
+          },
+          {
+            "matcher": { "id": "byName", "options": "BUSINESS: 4xx HTTP" },
+            "properties": [
+              { "id": "color", "value": { "fixedColor": "orange", "mode": "fixed" } }
+            ]
+          }
+        ]
+      },
+      "gridPos": { "h": 5, "w": 6, "x": 18, "y": 19 },
+      "id": 17,
+      "options": { "legend": { "displayMode": "list", "placement": "bottom", "showLegend": true } },
+      "targets": [
+        {
+          "expr": "sum(rate(entain_http_requests_total{status=~\"5..\"}[1m])) or vector(0)",
+          "legendFormat": "SERVICE: 5xx",
+          "refId": "A"
+        },
+        {
+          "expr": "sum(rate(entain_transactions_rejected_total[1m])) or vector(0)",
+          "legendFormat": "BUSINESS: tx rejected",
+          "refId": "B"
+        },
+        {
+          "expr": "sum(rate(entain_http_requests_total{status=~\"4..\"}[1m])) or vector(0)",
+          "legendFormat": "BUSINESS: 4xx HTTP",
+          "refId": "C"
+        }
+      ],
+      "title": "Service vs Business (rate)",
+      "type": "timeseries"
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 24 },
+      "id": 18,
+      "title": "HTTP status codes",
+      "type": "row"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 2,
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }] },
+          "unit": "reqps"
+        }
+      },
+      "gridPos": { "h": 4, "w": 4, "x": 0, "y": 25 },
+      "id": 19,
+      "options": { "colorMode": "background", "graphMode": "none", "reduceOptions": { "calcs": ["lastNotNull"] } },
+      "targets": [{ "expr": "sum(rate(entain_http_requests_total{status=\"200\"}[1m])) or vector(0)", "legendFormat": "200 OK", "refId": "A" }],
+      "title": "200 OK",
+      "type": "stat"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 2,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "yellow", "value": 0.001 }
+            ]
+          },
+          "unit": "reqps"
+        }
+      },
+      "gridPos": { "h": 4, "w": 4, "x": 4, "y": 25 },
+      "id": 20,
+      "options": { "colorMode": "background", "graphMode": "none", "reduceOptions": { "calcs": ["lastNotNull"] } },
+      "targets": [{ "expr": "sum(rate(entain_http_requests_total{status=\"400\"}[1m])) or vector(0)", "legendFormat": "400 Bad Request", "refId": "A" }],
+      "title": "400 validation",
+      "type": "stat"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 2,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "orange", "value": 0.001 }
+            ]
+          },
+          "unit": "reqps"
+        }
+      },
+      "gridPos": { "h": 4, "w": 4, "x": 8, "y": 25 },
+      "id": 21,
+      "options": { "colorMode": "background", "graphMode": "none", "reduceOptions": { "calcs": ["lastNotNull"] } },
+      "targets": [{ "expr": "sum(rate(entain_http_requests_total{status=\"402\"}[1m])) or vector(0)", "legendFormat": "402 Payment Required", "refId": "A" }],
+      "title": "402 insufficient",
+      "type": "stat"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 2,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "purple", "value": 0.001 }
+            ]
+          },
+          "unit": "reqps"
+        }
+      },
+      "gridPos": { "h": 4, "w": 4, "x": 12, "y": 25 },
+      "id": 22,
+      "options": { "colorMode": "background", "graphMode": "none", "reduceOptions": { "calcs": ["lastNotNull"] } },
+      "targets": [{ "expr": "sum(rate(entain_http_requests_total{status=\"404\"}[1m])) or vector(0)", "legendFormat": "404 Not Found", "refId": "A" }],
+      "title": "404 not found",
+      "type": "stat"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 2,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "blue", "value": 0.001 }
+            ]
+          },
+          "unit": "reqps"
+        }
+      },
+      "gridPos": { "h": 4, "w": 4, "x": 16, "y": 25 },
+      "id": 23,
+      "options": { "colorMode": "background", "graphMode": "none", "reduceOptions": { "calcs": ["lastNotNull"] } },
+      "targets": [{ "expr": "sum(rate(entain_http_requests_total{status=\"409\"}[1m])) or vector(0)", "legendFormat": "409 Conflict", "refId": "A" }],
+      "title": "409 duplicate",
+      "type": "stat"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 3,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "red", "value": 0.0001 }
+            ]
+          },
+          "unit": "reqps"
+        }
+      },
+      "gridPos": { "h": 4, "w": 4, "x": 20, "y": 25 },
+      "id": 24,
+      "options": { "colorMode": "background", "graphMode": "none", "reduceOptions": { "calcs": ["lastNotNull"] } },
+      "targets": [{ "expr": "sum(rate(entain_http_requests_total{status=\"500\"}[1m])) or vector(0)", "legendFormat": "500 Internal", "refId": "A" }],
+      "title": "500 INTERNAL",
+      "type": "stat"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "description": "Percent stacking: share of each HTTP status in total traffic. 100% green = success only.",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "drawStyle": "line",
+            "fillOpacity": 80,
+            "lineWidth": 1,
+            "stacking": { "group": "http", "mode": "percent" }
+          },
+          "max": 1,
+          "min": 0,
+          "unit": "percentunit"
+        },
+        "overrides": [
+          { "matcher": { "id": "byName", "options": "200 OK" }, "properties": [{ "id": "color", "value": { "fixedColor": "green", "mode": "fixed" } }] },
+          { "matcher": { "id": "byName", "options": "400 validation" }, "properties": [{ "id": "color", "value": { "fixedColor": "yellow", "mode": "fixed" } }] },
+          { "matcher": { "id": "byName", "options": "402 insufficient" }, "properties": [{ "id": "color", "value": { "fixedColor": "orange", "mode": "fixed" } }] },
+          { "matcher": { "id": "byName", "options": "404 not found" }, "properties": [{ "id": "color", "value": { "fixedColor": "purple", "mode": "fixed" } }] },
+          { "matcher": { "id": "byName", "options": "409 duplicate" }, "properties": [{ "id": "color", "value": { "fixedColor": "blue", "mode": "fixed" } }] },
+          { "matcher": { "id": "byName", "options": "500 INTERNAL" }, "properties": [{ "id": "color", "value": { "fixedColor": "red", "mode": "fixed" } }] }
+        ]
+      },
+      "gridPos": { "h": 8, "w": 14, "x": 0, "y": 29 },
+      "id": 9,
+      "options": { "legend": { "displayMode": "table", "placement": "right", "showLegend": true, "calcs": ["lastNotNull", "max"] } },
+      "targets": [
+        { "expr": "sum(rate(entain_http_requests_total{status=\"200\"}[1m])) or vector(0)", "legendFormat": "200 OK", "refId": "A" },
+        { "expr": "sum(rate(entain_http_requests_total{status=\"400\"}[1m])) or vector(0)", "legendFormat": "400 validation", "refId": "B" },
+        { "expr": "sum(rate(entain_http_requests_total{status=\"402\"}[1m])) or vector(0)", "legendFormat": "402 insufficient", "refId": "C" },
+        { "expr": "sum(rate(entain_http_requests_total{status=\"404\"}[1m])) or vector(0)", "legendFormat": "404 not found", "refId": "D" },
+        { "expr": "sum(rate(entain_http_requests_total{status=\"409\"}[1m])) or vector(0)", "legendFormat": "409 duplicate", "refId": "E" },
+        { "expr": "sum(rate(entain_http_requests_total{status=\"500\"}[1m])) or vector(0)", "legendFormat": "500 INTERNAL", "refId": "F" }
+      ],
+      "title": "HTTP status distribution (%)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "description": "Absolute req/s per status — separate lines, not one merged fill.",
+      "fieldConfig": {
+        "defaults": {
+          "custom": { "drawStyle": "line", "fillOpacity": 10, "lineWidth": 2, "stacking": { "mode": "none" } },
+          "unit": "reqps"
+        },
+        "overrides": [
+          { "matcher": { "id": "byName", "options": "200 OK" }, "properties": [{ "id": "color", "value": { "fixedColor": "green", "mode": "fixed" } }] },
+          { "matcher": { "id": "byName", "options": "400 validation" }, "properties": [{ "id": "color", "value": { "fixedColor": "yellow", "mode": "fixed" } }] },
+          { "matcher": { "id": "byName", "options": "402 insufficient" }, "properties": [{ "id": "color", "value": { "fixedColor": "orange", "mode": "fixed" } }] },
+          { "matcher": { "id": "byName", "options": "404 not found" }, "properties": [{ "id": "color", "value": { "fixedColor": "purple", "mode": "fixed" } }] },
+          { "matcher": { "id": "byName", "options": "409 duplicate" }, "properties": [{ "id": "color", "value": { "fixedColor": "blue", "mode": "fixed" } }] },
+          { "matcher": { "id": "byName", "options": "500 INTERNAL" }, "properties": [{ "id": "color", "value": { "fixedColor": "red", "mode": "fixed" } }] }
+        ]
+      },
+      "gridPos": { "h": 8, "w": 10, "x": 14, "y": 29 },
+      "id": 25,
+      "options": { "legend": { "displayMode": "table", "placement": "bottom", "showLegend": true, "calcs": ["lastNotNull", "max"] } },
+      "targets": [
+        { "expr": "sum(rate(entain_http_requests_total{status=\"200\"}[1m])) or vector(0)", "legendFormat": "200 OK", "refId": "A" },
+        { "expr": "sum(rate(entain_http_requests_total{status=\"400\"}[1m])) or vector(0)", "legendFormat": "400 validation", "refId": "B" },
+        { "expr": "sum(rate(entain_http_requests_total{status=\"402\"}[1m])) or vector(0)", "legendFormat": "402 insufficient", "refId": "C" },
+        { "expr": "sum(rate(entain_http_requests_total{status=\"404\"}[1m])) or vector(0)", "legendFormat": "404 not found", "refId": "D" },
+        { "expr": "sum(rate(entain_http_requests_total{status=\"409\"}[1m])) or vector(0)", "legendFormat": "409 duplicate", "refId": "E" },
+        { "expr": "sum(rate(entain_http_requests_total{status=\"500\"}[1m])) or vector(0)", "legendFormat": "500 INTERNAL", "refId": "F" }
+      ],
+      "title": "HTTP responses by status (req/s)",
+      "type": "timeseries"
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 37 },
+      "id": 26,
+      "title": "Transaction rejection reasons",
+      "type": "row"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "description": "Current rate per rejection reason. Green background = 0 (no rejections).",
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 3,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "yellow", "value": 0.001 },
+              { "color": "orange", "value": 0.1 },
+              { "color": "red", "value": 1 }
+            ]
+          },
+          "unit": "ops"
+        },
+        "overrides": [
+          { "matcher": { "id": "byName", "options": "duplicate_transaction" }, "properties": [{ "id": "color", "value": { "fixedColor": "blue", "mode": "fixed" } }] },
+          { "matcher": { "id": "byName", "options": "insufficient_funds" }, "properties": [{ "id": "color", "value": { "fixedColor": "orange", "mode": "fixed" } }] },
+          { "matcher": { "id": "byName", "options": "validation" }, "properties": [{ "id": "color", "value": { "fixedColor": "yellow", "mode": "fixed" } }] },
+          { "matcher": { "id": "byName", "options": "user_not_found" }, "properties": [{ "id": "color", "value": { "fixedColor": "purple", "mode": "fixed" } }] },
+          { "matcher": { "id": "byName", "options": "internal" }, "properties": [{ "id": "color", "value": { "fixedColor": "red", "mode": "fixed" } }] }
+        ]
+      },
+      "gridPos": { "h": 7, "w": 24, "x": 0, "y": 38 },
+      "id": 10,
+      "options": {
+        "displayMode": "gradient",
+        "minVizHeight": 16,
+        "minVizWidth": 8,
+        "orientation": "horizontal",
+        "reduceOptions": { "calcs": ["lastNotNull"] },
+        "showUnfilled": true,
+        "valueMode": "color"
+      },
+      "targets": [
+        { "expr": "sum(rate(entain_transactions_rejected_total{reason=\"duplicate_transaction\"}[1m])) or vector(0)", "legendFormat": "duplicate_transaction", "refId": "A" },
+        { "expr": "sum(rate(entain_transactions_rejected_total{reason=\"insufficient_funds\"}[1m])) or vector(0)", "legendFormat": "insufficient_funds", "refId": "B" },
+        { "expr": "sum(rate(entain_transactions_rejected_total{reason=\"validation\"}[1m])) or vector(0)", "legendFormat": "validation", "refId": "C" },
+        { "expr": "sum(rate(entain_transactions_rejected_total{reason=\"user_not_found\"}[1m])) or vector(0)", "legendFormat": "user_not_found", "refId": "D" },
+        { "expr": "sum(rate(entain_transactions_rejected_total{reason=\"invalid_user_id\"}[1m])) or vector(0)", "legendFormat": "invalid_user_id", "refId": "E" },
+        { "expr": "sum(rate(entain_transactions_rejected_total{reason=\"missing_source_type\"}[1m])) or vector(0)", "legendFormat": "missing_source_type", "refId": "F" },
+        { "expr": "sum(rate(entain_transactions_rejected_total{reason=\"invalid_json\"}[1m])) or vector(0)", "legendFormat": "invalid_json", "refId": "G" },
+        { "expr": "sum(rate(entain_transactions_rejected_total{reason=\"internal\"}[1m])) or vector(0)", "legendFormat": "internal", "refId": "H" }
+      ],
+      "title": "Rejection reasons — current rate (ops/s)",
+      "type": "bargauge"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "description": "Stacked by reason: shows which rejection type dominates.",
+      "fieldConfig": {
+        "defaults": {
+          "custom": { "drawStyle": "line", "fillOpacity": 70, "lineWidth": 1, "stacking": { "group": "reasons", "mode": "normal" } },
+          "unit": "ops"
+        },
+        "overrides": [
+          { "matcher": { "id": "byName", "options": "duplicate_transaction" }, "properties": [{ "id": "color", "value": { "fixedColor": "blue", "mode": "fixed" } }] },
+          { "matcher": { "id": "byName", "options": "insufficient_funds" }, "properties": [{ "id": "color", "value": { "fixedColor": "orange", "mode": "fixed" } }] },
+          { "matcher": { "id": "byName", "options": "validation" }, "properties": [{ "id": "color", "value": { "fixedColor": "yellow", "mode": "fixed" } }] },
+          { "matcher": { "id": "byName", "options": "user_not_found" }, "properties": [{ "id": "color", "value": { "fixedColor": "purple", "mode": "fixed" } }] },
+          { "matcher": { "id": "byName", "options": "internal" }, "properties": [{ "id": "color", "value": { "fixedColor": "red", "mode": "fixed" } }] }
+        ]
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 45 },
+      "id": 27,
+      "options": { "legend": { "displayMode": "table", "placement": "right", "showLegend": true, "calcs": ["lastNotNull", "max"] } },
+      "targets": [
+        { "expr": "sum(rate(entain_transactions_rejected_total{reason=\"duplicate_transaction\"}[1m])) or vector(0)", "legendFormat": "duplicate_transaction", "refId": "A" },
+        { "expr": "sum(rate(entain_transactions_rejected_total{reason=\"insufficient_funds\"}[1m])) or vector(0)", "legendFormat": "insufficient_funds", "refId": "B" },
+        { "expr": "sum(rate(entain_transactions_rejected_total{reason=\"validation\"}[1m])) or vector(0)", "legendFormat": "validation", "refId": "C" },
+        { "expr": "sum(rate(entain_transactions_rejected_total{reason=\"user_not_found\"}[1m])) or vector(0)", "legendFormat": "user_not_found", "refId": "D" },
+        { "expr": "sum(rate(entain_transactions_rejected_total{reason=\"invalid_user_id\"}[1m])) or vector(0)", "legendFormat": "invalid_user_id", "refId": "E" },
+        { "expr": "sum(rate(entain_transactions_rejected_total{reason=\"missing_source_type\"}[1m])) or vector(0)", "legendFormat": "missing_source_type", "refId": "F" },
+        { "expr": "sum(rate(entain_transactions_rejected_total{reason=\"invalid_json\"}[1m])) or vector(0)", "legendFormat": "invalid_json", "refId": "G" },
+        { "expr": "sum(rate(entain_transactions_rejected_total{reason=\"internal\"}[1m])) or vector(0)", "legendFormat": "internal", "refId": "H" }
+      ],
+      "title": "Rejection reasons over time (stacked)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "description": "Business behaviour: success vs idempotent duplicate vs insufficient funds.",
+      "fieldConfig": {
+        "defaults": {
+          "custom": { "drawStyle": "line", "fillOpacity": 20, "lineWidth": 2, "stacking": { "mode": "none" } },
+          "unit": "ops"
+        },
+        "overrides": [
+          { "matcher": { "id": "byName", "options": "applied (success)" }, "properties": [{ "id": "color", "value": { "fixedColor": "green", "mode": "fixed" } }] },
+          { "matcher": { "id": "byName", "options": "duplicate_transaction" }, "properties": [{ "id": "color", "value": { "fixedColor": "blue", "mode": "fixed" } }] },
+          { "matcher": { "id": "byName", "options": "insufficient_funds" }, "properties": [{ "id": "color", "value": { "fixedColor": "orange", "mode": "fixed" } }] }
+        ]
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 45 },
+      "id": 12,
+      "options": { "legend": { "displayMode": "table", "placement": "bottom", "showLegend": true, "calcs": ["lastNotNull", "max"] } },
+      "targets": [
+        { "expr": "sum(rate(entain_transactions_applied_total[1m])) or vector(0)", "legendFormat": "applied (success)", "refId": "A" },
+        { "expr": "sum(rate(entain_transactions_rejected_total{reason=\"duplicate_transaction\"}[1m])) or vector(0)", "legendFormat": "duplicate_transaction", "refId": "B" },
+        { "expr": "sum(rate(entain_transactions_rejected_total{reason=\"insufficient_funds\"}[1m])) or vector(0)", "legendFormat": "insufficient_funds", "refId": "C" }
+      ],
+      "title": "Success / Duplicate / Insufficient Funds",
+      "type": "timeseries"
+    }
+  ],
+  "refresh": "5s",
+  "schemaVersion": 39,
+  "tags": ["entain", "slo", "balance"],
+  "templating": { "list": [] },
+  "time": { "from": "now-15m", "to": "now" },
+  "timezone": "browser",
+  "title": "Entain Balance API — SLI/SLO",
+  "uid": "entain-balance-slo",
+  "version": 5
+}

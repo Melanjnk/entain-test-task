@@ -1,0 +1,71 @@
+groups:
+  - name: entain_sli
+    interval: 15s
+    rules:
+      - record: entain:sli:availability:ratio
+        expr: |
+          sum(rate(entain_http_requests_total{status=~"2.."}[1m]))
+          /
+          clamp_min(sum(rate(entain_http_requests_total[1m])), 1e-9)
+
+      - record: entain:sli:error:ratio
+        expr: |
+          sum(rate(entain_http_requests_total{status=~"5.."}[1m]))
+          /
+          clamp_min(sum(rate(entain_http_requests_total[1m])), 1e-9)
+
+      - record: entain:sli:latency:p95_seconds
+        expr: |
+          histogram_quantile(
+            0.95,
+            sum(rate(entain_http_request_duration_seconds_bucket[1m])) by (le)
+          )
+
+      - record: entain:sli:latency:p99_seconds
+        expr: |
+          histogram_quantile(
+            0.99,
+            sum(rate(entain_http_request_duration_seconds_bucket[1m])) by (le)
+          )
+
+      - record: entain:sli:request_rate_rps
+        expr: sum(rate(entain_http_requests_total[1m]))
+
+      - record: entain:sli:transaction_success:ratio
+        expr: |
+          sum(rate(entain_transactions_applied_total[1m]))
+          /
+          clamp_min(
+            sum(rate(entain_transactions_applied_total[1m]))
+            + sum(rate(entain_transactions_rejected_total[1m])),
+            1e-9
+          )
+
+      - record: entain:sli:graceful_degradation:signal
+        expr: |
+          (
+            entain:sli:latency:p95_seconds > 0.1
+            and entain:sli:request_rate_rps > 50
+          )
+          or
+          (
+            entain:sli:request_rate_rps > 80
+            and entain:sli:availability:ratio > 0.95
+          )
+
+      - record: entain:sli:http_402:rate
+        expr: |
+          sum(rate(entain_http_requests_total{
+            method="POST",
+            route="/user/:id/transaction",
+            status="402"
+          }[1m]))
+
+      - record: entain:sli:http_409:rate
+        expr: |
+          sum(rate(entain_http_requests_total{
+            method="POST",
+            route="/user/:id/transaction",
+            status="409"
+          }[1m]))
+

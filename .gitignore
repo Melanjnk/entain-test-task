@@ -1,0 +1,19 @@
+# Binaries
+/bin/
+/server
+
+# Profiles
+*.prof
+
+# Artifacts
+/artifacts
+
+# Personal notes (not for submission)
+readme-notes.md
+
+# IDE
+.idea/
+.vscode/
+
+# OS
+.DS_Store

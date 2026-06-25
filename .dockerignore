@@ -1,0 +1,10 @@
+.git
+.gitignore
+*.md
+readme-notes.md
+summary.md
+agents.md
+*.prof
+.idea
+.vscode
+.DS_Store
