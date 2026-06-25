@@ -190,6 +190,8 @@ curl -s http://localhost:8080/metrics | grep '^entain_'
 
 Included in `docker compose up -d`:
 
+![Grafana Dashboard](docs/images/grafana-dashboard.png)
+
 | Service     | URL                          | Credentials         |
 |-------------|------------------------------|---------------------|
 | Prometheus  | http://localhost:9090        | —                   |
